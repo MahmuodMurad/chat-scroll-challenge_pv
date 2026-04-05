@@ -1,44 +1,54 @@
-# Chat Auto-Scroll Challenge
+# Chat Scroll Challenge
 
-## Setup
+Flutter chat demo focused on fixing auto-scroll behavior for streaming AI responses.
 
-1. Get a free Gemini API key from [ai.google.dev](https://ai.google.dev)
-2. Run `flutter pub get`
-3. Run `flutter run` (web, macOS, or any platform)
-4. Enter your API key and start chatting
+## UX Issues Identified And Fixed
 
-## The Problem
+1. Streaming responses were not followed smoothly.
+   Fix: Auto-scroll now runs through a queued follow-to-bottom pass instead of starting a new animation on every token, which makes streaming feel more stable and less jittery.
 
-This app uses [flutter_chat_ui](https://github.com/flyerhq/flutter_chat_ui) to display a streaming chat with Google Gemini. When you send a message, the AI response streams in token by token.
+2. The list fought the user while they were reading older messages.
+   Fix: Manual scrolling away from the bottom immediately disables auto-scroll, so new chunks and message updates no longer pull the list down unexpectedly.
 
-**Try it:** Send multiple messages (e.g. _"Write a detailed essay about the history of the internet"_) and notice the scroll UX issues as the responses stream in.
+3. Auto-scroll did not reliably resume after the user returned to the bottom.
+   Fix: Reaching the bottom again now re-enables auto-scroll and triggers a fresh follow pass immediately, so streaming resumes correctly without waiting for an extra event.
 
-## Your Task
+4. Bottom detection was too fragile.
+   Fix: The app now uses a bottom threshold instead of exact equality with `maxScrollExtent`, which is more reliable during incremental streaming and layout changes.
 
-Compare the scroll behavior between this app and the reference implementation: https://iman-admin.github.io/chat-scroll-demo/
+5. Streaming growth and normal message updates were handled inconsistently.
+   Fix: Auto-scroll is triggered from both chat operations and streaming layout changes, so it works when a streamed bubble is inserted and while that bubble continues to grow.
 
-Identify the UX issues and fix them. Your solution must match the scroll behavior of the reference implementation.
+6. Sending a new message could leave the latest content off-screen.
+   Fix: User sends now force the list back to the bottom immediately so the sent message and streamed reply remain visible.
 
-**Test it thoroughly before you start coding.** Pay attention to every detail of how auto-scroll engages, disengages, and resumes. Your solution will be scored primarily on how closely it matches this behavior.
+7. Image attachments were sent too early.
+   Fix: Images are now staged in the composer with a preview and are only sent when the user explicitly submits.
 
-You are free to use any AI tools you'd like. What matters is the end result.
+8. Keyboard behavior was backwards for multiline input.
+   Fix: `Enter` now sends the message, while `Shift+Enter` inserts a newline.
 
-## How to Submit
+## Deployed URL
 
-1. Clone this repo into a **private** repository on your own GitHub account.
-2. Implement your solution.
-3. Deploy your solution to the web (GitHub Pages, Firebase Hosting, or any hosting).
-4. Update this README with:
-   - A list of the UX issues you identified and fixed.
-   - Your deployed URL.
-   - A screen recording demonstrating each fix.
-6. Add **IMan-admin** as a collaborator to your private repo.
-7. Send us the link to your repo.
+Temporary placeholder: `https://example.com/chat-scroll-demo`
 
-## Evaluation Criteria
+## Screen Recording
 
-- Does it auto-scroll during streaming?
-- Does manual scroll-away pause auto-scroll?
-- Does returning to bottom resume auto-scroll?
-- Is the code clean, testable, and well-separated?
-- Are edge cases handled?
+Temporary placeholder: `https://example.com/chat-scroll-recording`
+
+## Current Structure
+
+The main screen was cleaned up and split into smaller files:
+
+- `lib/gemini_chat_screen.dart`
+  Coordinates Gemini streaming, message insertion, staged attachments, and top-level chat state.
+- `lib/chat_auto_scroll_controller.dart`
+  Encapsulates bottom detection, pause/resume logic, and queued scroll scheduling.
+- `lib/chat_builders.dart`
+  Holds the `flutter_chat_ui` builder configuration for the animated list, composer, and message widgets.
+- `lib/chat_composer.dart`
+  Contains the composer UI, staged image preview, submit handling, and composer height measurement.
+- `lib/gemini_stream_manager.dart`
+  Manages incremental stream state and final conversion from `TextStreamMessage` to `TextMessage`.
+- `lib/in_memory_chat_controller.dart`
+  Provides the in-memory message store used by the chat UI.
