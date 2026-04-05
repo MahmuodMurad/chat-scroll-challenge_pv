@@ -30,7 +30,7 @@ Flutter chat demo focused on fixing auto-scroll behavior for streaming AI respon
 
 ## Deployed URL
 
-Temporary placeholder: `[https://example.com/chat-scroll-demo](https://mahmuodmurad.github.io/chat-scroll-challenge_pv/)`
+Temporary placeholder: `https://mahmuodmurad.github.io/chat-scroll-challenge_pv/`
 
 ## Screen Recording
 
